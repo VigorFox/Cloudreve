@@ -3,6 +3,11 @@ package explorer
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"strconv"
+	"strings"
+	"time"
+
 	model "github.com/cloudreve/Cloudreve/v3/models"
 	"github.com/cloudreve/Cloudreve/v3/pkg/auth"
 	"github.com/cloudreve/Cloudreve/v3/pkg/cache"
@@ -13,10 +18,6 @@ import (
 	"github.com/cloudreve/Cloudreve/v3/pkg/serializer"
 	"github.com/cloudreve/Cloudreve/v3/pkg/util"
 	"github.com/gin-gonic/gin"
-	"io/ioutil"
-	"strconv"
-	"strings"
-	"time"
 )
 
 // CreateUploadSessionService 获取上传凭证服务
@@ -53,7 +54,8 @@ func (service *CreateUploadSessionService) Create(ctx context.Context, c *gin.Co
 		File:        ioutil.NopCloser(strings.NewReader("")),
 	}
 	if service.LastModified > 0 {
-		lastModified := time.UnixMilli(service.LastModified)
+		lastModified := time.Unix(service.LastModified/int64(time.Millisecond),
+			(service.LastModified%int64(time.Millisecond))*int64(time.Millisecond))
 		file.LastModified = &lastModified
 	}
 	credential, err := fs.CreateUploadSession(ctx, file)

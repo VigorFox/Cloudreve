@@ -3,17 +3,18 @@ package wopi
 import (
 	"errors"
 	"fmt"
+	"net/url"
+	"path"
+	"strings"
+	"sync"
+	"time"
+
 	model "github.com/cloudreve/Cloudreve/v3/models"
 	"github.com/cloudreve/Cloudreve/v3/pkg/cache"
 	"github.com/cloudreve/Cloudreve/v3/pkg/hashid"
 	"github.com/cloudreve/Cloudreve/v3/pkg/request"
 	"github.com/cloudreve/Cloudreve/v3/pkg/util"
 	"github.com/gofrs/uuid"
-	"net/url"
-	"path"
-	"strings"
-	"sync"
-	"time"
 )
 
 type Client interface {
@@ -173,7 +174,7 @@ func (c *client) NewSession(user *model.User, file *model.File, action ActonType
 	sessionRes := &Session{
 		AccessToken:    session.AccessToken,
 		ActionURL:      actionUrl,
-		AccessTokenTTL: time.Now().Add(time.Duration(ttl-sessionExpiresPadding) * time.Second).UnixMilli(),
+		AccessTokenTTL: time.Now().Add(time.Duration(ttl-sessionExpiresPadding)*time.Second).UnixNano() / int64(time.Millisecond/time.Nanosecond),
 	}
 
 	return sessionRes, nil
